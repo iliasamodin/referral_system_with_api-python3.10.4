@@ -4,7 +4,7 @@ from account.froms import PhoneValidationForm, AuthorizationForm
 from django.conf import settings
 from django.contrib import messages
 from account.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from random import randint
 from time import sleep
 
@@ -111,4 +111,17 @@ class AuthorizationView(View):
                     "You have entered an invalid access code"
                 )
 
+        return redirect("login")
+
+
+class LogoutView(View):
+    """
+    Logout of a user account.
+    """
+
+    def get(self, request):
+        return redirect("profile")
+
+    def post(self, request):
+        logout(request)
         return redirect("login")
