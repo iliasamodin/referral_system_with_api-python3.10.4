@@ -17,6 +17,11 @@
             rel="stylesheet" 
             href="{% static 'instruction/css/instruction_styles.css' %}">
         <link rel="icon" href="{% static 'instruction/images/info-circle.svg' %}">
+        {% elif page_title == "Authorization" %}
+        <link 
+            rel="stylesheet" 
+            href="{% static 'account/css/account_styles.css' %}">
+        <link rel="icon" href="{% static 'account/images/door_open.svg' %}">
         {% endif %}
 
         <title>{{ page_title }}</title>
