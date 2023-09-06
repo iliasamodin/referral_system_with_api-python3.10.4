@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+
+{% block application %}
+<article class="profile">
+    <h1>Profile</h1>
+
+    <h2>Your invite code</h2>
+    <section class="invite_code">
+        <p>{{ invite_code }}</p>
+    </section>
+
+    <h2>Referrals</h2>
+    <section class="referrals">
+        {% if phones_owned_by_referrals %}
+        <ul>
+            {% for phone_number_of_referral in phones_owned_by_referrals %}
+            <li>{{ phone_number_of_referral }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>You don't have referrals</p>
+        {% endif %}
+    </section>
+
+    <h2>Referrer</h2>
+    <section class="referrer">
+        {% if referrer %}
+        <p>{{ referrer }}</p>
+        {% elif form %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+            <button type="submit">send</button>
+        </form>
+        {% endif %}
+    </section>
+
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">logout</button>
+    </form>
+</article>
+{% endblock %}
