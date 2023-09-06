@@ -22,6 +22,11 @@
             rel="stylesheet" 
             href="{% static 'account/css/account_styles.css' %}">
         <link rel="icon" href="{% static 'account/images/door_open.svg' %}">
+        {% elif page_title == "Referral Program" %}
+        <link 
+            rel="stylesheet" 
+            href="{% static 'referral/css/referral_styles.css' %}">
+        <link rel="icon" href="{% static 'referral/images/people.svg' %}">
         {% endif %}
 
         <title>{{ page_title }}</title>
