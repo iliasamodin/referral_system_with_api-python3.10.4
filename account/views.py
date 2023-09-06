@@ -15,6 +15,7 @@ from account.serializers import (
     LoginSerializer
 )
 from account.permissions import IsUnauthorized
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 
@@ -224,3 +225,16 @@ class AuthorizationAPIView(APIView):
         #   to the phone number validation stage 
         #   if the user entered an incorrect authorization code
         return redirect("login_api")
+
+
+class LogoutAPIView(APIView):
+    """
+    API for logout.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        logout(request)
+        response_messages = {"message": "You are logged out"}
+        return Response(response_messages)

@@ -17,7 +17,12 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from referral.views import ProfileView
-from account.views import AuthorizationView, LogoutView, AuthorizationAPIView
+from account.views import (
+    AuthorizationView, 
+    LogoutView, 
+    AuthorizationAPIView,
+    LogoutAPIView
+)
 
 urlpatterns = [
     path('admin-panel/', admin.site.urls),
@@ -37,5 +42,6 @@ urlpatterns = [
         "api/v1/login/",
         AuthorizationAPIView.as_view(), 
         name="login_api"
-    )
+    ),
+    path("api/v1/logout/", LogoutAPIView.as_view(), name="logout_api")
 ]
