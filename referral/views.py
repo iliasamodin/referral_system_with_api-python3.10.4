@@ -5,6 +5,11 @@ from account.models import User
 from referral.models import ReferralReferrer
 from django.contrib import messages
 
+from rest_framework.views import APIView
+from referral.serializers import ProfileSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 class ProfileView(View):
     """
@@ -89,3 +94,23 @@ class ProfileView(View):
         )
 
         return redirect("profile")
+
+
+class ProfileAPIView(APIView):
+    """
+    API for user profile.
+    """
+
+    queryset = ReferralReferrer.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = self.queryset \
+            .select_related("referrer") \
+            .filter(referrer=request.user)
+
+        # Returning a list type response
+        return Response(
+            self.serializer_class(instance=queryset, many=True).data
+        )
