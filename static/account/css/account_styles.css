@@ -1,0 +1,43 @@
+article.account > h1 {
+	font-size: 30px;
+	font-weight: 400;
+	margin-bottom: 25px;
+}
+
+article.account > form > li {
+	margin-bottom: 5px;
+}
+
+article.account > form > li > label {
+	display: block;
+}
+
+article.account > form > li > #id_phone_number,
+article.account > form > li > #id_authorization_code {
+	background-color: #f9fffd;
+	border: 1px solid #132620;
+	border-radius: 10px;
+	box-shadow: 0px 5px 15px -10px #0f1e1a;
+    box-sizing: border-box;
+	font-family: "Open Sans", "PT Sans", sans-serif;
+	font-size: 16px;
+	font-weight: 300;
+	text-align: center;
+	width: 200px;
+}
+
+article.account > form > p {
+	margin-bottom: 10px;
+}
+
+article.account > form > button {
+	background: none;
+	border: 1.5px solid #132620;
+	border-radius: 10px;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 18px;
+	margin: 5px auto 0px;
+	padding: 2px 0px 5px;
+	width: 90px;
+}

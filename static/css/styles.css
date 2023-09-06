@@ -1,0 +1,52 @@
+html {
+	font-family: "Open Sans", "PT Sans", sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	text-align: center;
+}
+
+body {
+    background-color: Aquamarine;
+	color: #0f0b16;
+	height: 100vh;
+	line-height: 1.333;
+}
+
+body > .centering_container {
+	align-items: center;
+	display: flex;
+	flex-flow: row wrap;
+	height: 100vh;
+	justify-content: center;
+}
+
+body > .centering_container > .centered_item > form > button {
+	background: none;
+    border: none;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 18px;
+	margin: 5px auto 0px;
+	padding: 2px 0px 5px;
+	width: 120px;
+}
+
+strong, b {
+	font-weight: bold;
+}
+
+em, i {
+	font-style: italic;
+}
+
+/*-------------------------------------------------*/
+
+button:hover {
+	opacity: 0.6;
+}
+
+/*-------------------------------------------------*/
+
+h1, h2 {
+	line-height: 1;
+}
