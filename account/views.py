@@ -3,6 +3,7 @@ from django.views import View
 from account.froms import PhoneValidationForm, AuthorizationForm
 from django.conf import settings
 from django.contrib import messages
+from instruction.models import Key
 from account.models import User
 from django.contrib.auth import login, logout
 from random import randint
@@ -33,30 +34,38 @@ class AuthorizationView(View):
 
         variables = {"page_title": self.page_title}
 
-        # Using multiple forms for different authorization steps
-        if not "validation_passed" in request.session:
-            variables["form"] = PhoneValidationForm(
-                # Initialization of the phone number input form 
-                #   by the user number whose invite code 
-                #   has already been accepted as a referrer 
-                #   for other users. 
-                #   This initialization is used 
-                #   only for the demo version of the project 
-                #   to clearly show the display 
-                #   of referrals in the profile
-                initial={"phone_number": 7_999_111_00_00} 
-                if settings.DEMO else {}
-            )
+        # Depending on the section activated by the user, 
+        #   the user will be shown either an authorization page or 
+        #   instructions for using the site api
+        if request.GET.get("section") == "Instruction":
+            variables["instructions"] = \
+                Key.objects.select_related("api_path").all()
 
         else:
-            variables["form"] = AuthorizationForm(
-                # The authorization_code field 
-                #   is initialized only in the demo version
-                initial={
-                "authorization_code": 
-                request.session["validation_passed"]["authorization_code"]
-                } if settings.DEMO else {}
-            )
+            # Using multiple forms for different authorization steps
+            if not "validation_passed" in request.session:
+                variables["form"] = PhoneValidationForm(
+                    # Initialization of the phone number input form 
+                    #   by the user number whose invite code 
+                    #   has already been accepted as a referrer 
+                    #   for other users. 
+                    #   This initialization is used 
+                    #   only for the demo version of the project 
+                    #   to clearly show the display 
+                    #   of referrals in the profile
+                    initial={"phone_number": 7_999_111_00_00} 
+                    if settings.DEMO else {}
+                )
+
+            else:
+                variables["form"] = AuthorizationForm(
+                    # The authorization_code field 
+                    #   is initialized only in the demo version
+                    initial={
+                    "authorization_code": 
+                    request.session["validation_passed"]["authorization_code"]
+                    } if settings.DEMO else {}
+                )
 
         return render(request, self.template_name, variables)
 

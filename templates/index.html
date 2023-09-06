@@ -7,7 +7,24 @@
     <body>
         <div class="centering_container">
             <div class="centered_item">
+                {% if instructions %}
+                {% include "instruction/instruction_table.html" %}
+                <form method="get">
+                    <button 
+                        type="submit" 
+                        name="section" 
+                        value="{{ page_title }}">
+                        Back to {{ page_title }}
+                    </button>
+                </form>
+                {% else %}
                 {% block application %}{% endblock %}
+                <form method="get">
+                    <button type="submit" name="section" value="Instruction">
+                        Open API Instructions
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
     </body>
