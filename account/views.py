@@ -8,6 +8,16 @@ from django.contrib.auth import login, logout
 from random import randint
 from time import sleep
 
+from rest_framework.views import APIView
+from account.serializers import (
+    ValidationSerializer, 
+    AuthorizationSerializer,
+    LoginSerializer
+)
+from account.permissions import IsUnauthorized
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 class AuthorizationView(View):
     """
@@ -125,3 +135,106 @@ class LogoutView(View):
     def post(self, request):
         logout(request)
         return redirect("login")
+
+
+class AuthorizationAPIView(APIView):
+    """
+    API for phone number validation and authorization code generation.
+    """
+
+    # Using multiple serializers 
+    #   for post requests at different stages of authorization
+    serializer_classes = {
+        "validation": ValidationSerializer,
+        "authorization": AuthorizationSerializer,
+        "login": LoginSerializer
+    }
+    # Restriction on working with the view: only for unauthorized users
+    permission_classes = [IsUnauthorized]
+
+    # A property that returns the serializer 
+    #   required at the current authorization stage
+    @property
+    def serializer_class(self):
+        if "authorization_passed" in self.request.session:
+            return self.serializer_classes["login"]
+        elif "validation_passed" in self.request.session:
+            return self.serializer_classes["authorization"]
+        else:
+            return self.serializer_classes["validation"]
+
+    def get(self, request):
+        if not "validation_passed" in request.session:
+            # Hint at the phone number validation stage
+            response_messages = {
+                "message": 
+                "Pass your phone number by 'phone_number' key"
+            }
+            return Response(response_messages)
+
+        else:
+            response_messages = {
+                "message": 
+                "Pass code from SMS by 'authorization_code' key"
+            }
+            if settings.DEMO:
+                response_messages["code"] = \
+                    request.session['validation_passed']['authorization_code']
+            return Response(response_messages)
+
+    def post(self, request):
+        if not "validation_passed" in request.session:
+            if self.serializer_class(data=request.data).is_valid():
+                request.session["validation_passed"] = dict()
+                request.session["validation_passed"]["phone_number"] = \
+                    str(request.data["phone_number"])
+                authorization_code = str(randint(1000, 9999))
+                request.session["validation_passed"]["authorization_code"] = \
+                    authorization_code
+
+                sleep(1)
+
+        else:
+            phone_number = request.session["validation_passed"]["phone_number"]
+            authorization_code = \
+                request.session["validation_passed"]["authorization_code"]
+
+            if self.serializer_class(data=request.data).is_valid() and \
+            str(request.data["authorization_code"]) == authorization_code:
+                del request.session["validation_passed"]
+
+                user, _ = User.get_or_create(phone_number=phone_number)
+
+                login(request, user)
+
+                # Returning authorized user data
+                request.session["authorization_passed"] = True
+                # Installing a serializer by a model object
+                authorized_user_data = \
+                    self.serializer_class(instance=user).data
+                del request.session["authorization_passed"]
+
+                return Response(authorized_user_data)
+
+            else:
+                del request.session["validation_passed"]
+
+        # Redirecting the user from the phone number validation stage 
+        #   to the SMS authorization stage, 
+        #   or from the SMS authorization stage back 
+        #   to the phone number validation stage 
+        #   if the user entered an incorrect authorization code
+        return redirect("login_api")
+
+
+class LogoutAPIView(APIView):
+    """
+    API for logout.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        logout(request)
+        response_messages = {"message": "You are logged out"}
+        return Response(response_messages)
