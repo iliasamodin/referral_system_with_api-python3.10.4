@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from referral.models import ReferralReferrer
+from account.models import User
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -16,3 +17,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = ReferralReferrer
         fields = ["phone_number"]
         depth = 1
+
+
+class InviteCodeSerializer(serializers.ModelSerializer):
+    """
+    Serializer to return the user's invite code.
+    """
+
+    class Meta:
+        model = User
+        fields = ["invite_code"]
+        extra_kwargs = {
+            "invite_code": {"read_only": True}
+        }

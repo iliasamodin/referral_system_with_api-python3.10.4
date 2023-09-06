@@ -6,7 +6,7 @@ from referral.models import ReferralReferrer
 from django.contrib import messages
 
 from rest_framework.views import APIView
-from referral.serializers import ProfileSerializer
+from referral.serializers import ProfileSerializer, InviteCodeSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -114,3 +114,16 @@ class ProfileAPIView(APIView):
         return Response(
             self.serializer_class(instance=queryset, many=True).data
         )
+
+
+class InviteCodeAPIView(APIView):
+    """
+    API for receiving an invite code 
+    authorized in the referral program of the user.
+    """
+
+    serializer_class = InviteCodeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(self.serializer_class(instance=request.user).data)

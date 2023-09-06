@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from referral.views import ProfileView, ProfileAPIView
+from referral.views import ProfileView, ProfileAPIView, InviteCodeAPIView
 from account.views import (
     AuthorizationView, 
     LogoutView, 
@@ -44,5 +44,10 @@ urlpatterns = [
         name="login_api"
     ),
     path("api/v1/logout/", LogoutAPIView.as_view(), name="logout_api"),
-    path("api/v1/profile/", ProfileAPIView.as_view(), name="profile_api")
+    path("api/v1/profile/", ProfileAPIView.as_view(), name="profile_api"),
+    path(
+        "api/v1/profile/invite-code/", 
+        InviteCodeAPIView.as_view(), 
+        name="invite_code_api"
+    )
 ]
