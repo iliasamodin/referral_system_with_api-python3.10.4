@@ -1,0 +1,20 @@
+<article class="instruction">
+    <h2>API instruction</h2>
+
+    <table>
+        <tr>
+            <th>Path</th>
+            <th>Sent key</th>
+            <th>Request type</th>
+            <th>Description</th>
+        </tr>
+        {% for instruction in instructions %}
+        <tr>
+            <td>{{ instruction.api_path.path }}</td>
+            <td>{{ instruction.key }}</td>
+            <td>{{ instruction.request_type }}</td>
+            <td>{{ instruction.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</article>

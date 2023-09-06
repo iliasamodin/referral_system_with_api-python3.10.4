@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from referral.froms import ReferrerAssignmentFrom
+from instruction.models import Key
 from account.models import User
 from referral.models import ReferralReferrer
 from django.contrib import messages
@@ -27,31 +28,36 @@ class ProfileView(View):
     def get(self, request):
         variables = {"page_title": self.page_title}
 
-        variables["invite_code"] = request.user.invite_code
+        if request.GET.get("section") == "Instruction":
+            variables["instructions"] = \
+                Key.objects.select_related("api_path").all()
 
-        # If the user has already defined his referrer, 
-        #   the previously entered referrer invite code 
-        #   will be displayed for the user 
-        #   in the corresponding section, 
-        #   otherwise the user will be provided with a form 
-        #   for specifying his referrer
-        referrer_of_authorized_user = \
-            ReferralReferrer.objects.select_related("referrer") \
-                .filter(pk=request.user).first()
-        if referrer_of_authorized_user:
-            variables["referrer"] = \
-                referrer_of_authorized_user.referrer.invite_code
         else:
-            variables["form"] = ReferrerAssignmentFrom()
+            variables["invite_code"] = request.user.invite_code
 
-        # Getting the phone numbers of the current user's referrals 
-        #   to display in the user's profile
-        variables["phones_owned_by_referrals"] = [
-            referral_and_referrer.referral.phone_number
-            for referral_and_referrer in ReferralReferrer.objects \
-                .select_related("referral") \
-                .filter(referrer=request.user)
-        ]
+            # If the user has already defined his referrer, 
+            #   the previously entered referrer invite code 
+            #   will be displayed for the user 
+            #   in the corresponding section, 
+            #   otherwise the user will be provided with a form 
+            #   for specifying his referrer
+            referrer_of_authorized_user = \
+                ReferralReferrer.objects.select_related("referrer") \
+                    .filter(pk=request.user).first()
+            if referrer_of_authorized_user:
+                variables["referrer"] = \
+                    referrer_of_authorized_user.referrer.invite_code
+            else:
+                variables["form"] = ReferrerAssignmentFrom()
+
+            # Getting the phone numbers of the current user's referrals 
+            #   to display in the user's profile
+            variables["phones_owned_by_referrals"] = [
+                referral_and_referrer.referral.phone_number
+                for referral_and_referrer in ReferralReferrer.objects \
+                    .select_related("referral") \
+                    .filter(referrer=request.user)
+            ]
 
         return render(request, self.template_name, variables)
 
