@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
-    'referral.apps.ReferralConfig'
+    'referral.apps.ReferralConfig',
+    'instruction.apps.InstructionConfig'
 ]
 
 MIDDLEWARE = [
