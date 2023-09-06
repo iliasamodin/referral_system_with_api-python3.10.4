@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,6 +25,8 @@ SECRET_KEY = 'django-insecure-=%2lny5l&s7$m_3)z#(=*(30%2!%l=)5-t%x7wqd9ilnt29%gz
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+DEMO = True
 
 ALLOWED_HOSTS = []
 
@@ -57,7 +60,7 @@ ROOT_URLCONF = 'referral_system.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,6 +107,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Defining a custom user model as the default user model in a project
 AUTH_USER_MODEL = "account.User"
+
+LOGIN_URL = "/login/"
 
 
 # Internationalization
