@@ -6,7 +6,11 @@ from referral.models import ReferralReferrer
 from django.contrib import messages
 
 from rest_framework.views import APIView
-from referral.serializers import ProfileSerializer, InviteCodeSerializer
+from referral.serializers import (
+    ProfileSerializer, 
+    InviteCodeSerializer,
+    ReferrerSerializer
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -127,3 +131,76 @@ class InviteCodeAPIView(APIView):
 
     def get(self, request):
         return Response(self.serializer_class(instance=request.user).data)
+
+
+class ReferrerAPIView(APIView):
+    """
+    API for obtaining and assignment the referrer.
+    """
+
+    queryset = ReferralReferrer.objects.all()
+    serializer_class = ReferrerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = self.queryset \
+            .select_related("referrer") \
+            .filter(pk=request.user).first()
+        referrer_of_authorized_user = \
+            self.serializer_class(instance=queryset).data
+
+        # If the user has not yet indicated 
+        #   the invite code of his referrer, 
+        #   the corresponding message is returned to the user
+        if not referrer_of_authorized_user["referrer_code"]:
+            response_messages = {
+                "message": 
+                "Pass your referrer invite code by 'referrer_code' key"
+            }
+            return Response(response_messages)
+
+        return Response(referrer_of_authorized_user)
+
+    def post(self, request):
+        queryset = self.queryset \
+            .select_related("referrer") \
+            .filter(pk=request.user).first()
+        referrer_of_authorized_user = \
+            self.serializer_class(instance=queryset).data
+
+        # If the referrer for the user is already defined, 
+        #   then when trying to redefine the referer, 
+        #   the user will return the invite code 
+        #   of the previously defined referrer 
+        #   and an informational message about 
+        #   the impossibility of redefining the referer
+        if referrer_of_authorized_user["referrer_code"]:
+            referrer_of_authorized_user["message"] = \
+                "Referrer previously defined and cannot be changed"
+
+            return Response(referrer_of_authorized_user)
+
+        else:
+            if self.serializer_class(data=request.data).is_valid():
+                referrer_invite_code = request.data["referrer_code"].upper()
+                referrer_of_authorized_user = User.objects \
+                    .filter(invite_code=referrer_invite_code).first()
+
+                if referrer_of_authorized_user is not None:
+                    if referrer_of_authorized_user.id < request.user.id:
+                        ReferralReferrer.objects.create(
+                            referral=request.user,
+                            referrer=referrer_of_authorized_user
+                        )
+                        return redirect("referrer_api")
+
+                    else:
+                        message = "Your referrer must be registered before you"
+                else:
+                    message = "The user with the specified invite code " \
+                    "does not exist"
+            else:
+                message = "Pass a six-digit invite code for the 'referrer' key"
+
+            response_messages = {"message": message}
+            return Response(response_messages)
