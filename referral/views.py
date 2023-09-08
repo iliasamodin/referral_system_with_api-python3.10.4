@@ -148,12 +148,16 @@ class ReferrerAPIView(APIView):
     serializer_class = ReferrerSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get_referrer(self, request):
         queryset = self.queryset \
             .select_related("referrer") \
             .filter(pk=request.user).first()
         referrer_of_authorized_user = \
             self.serializer_class(instance=queryset).data
+        return referrer_of_authorized_user
+
+    def get(self, request):
+        referrer_of_authorized_user = self.get_referrer(request)
 
         # If the user has not yet indicated 
         #   the invite code of his referrer, 
@@ -168,11 +172,7 @@ class ReferrerAPIView(APIView):
         return Response(referrer_of_authorized_user)
 
     def post(self, request):
-        queryset = self.queryset \
-            .select_related("referrer") \
-            .filter(pk=request.user).first()
-        referrer_of_authorized_user = \
-            self.serializer_class(instance=queryset).data
+        referrer_of_authorized_user = self.get_referrer(request)
 
         # If the referrer for the user is already defined, 
         #   then when trying to redefine the referer, 
